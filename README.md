@@ -9,13 +9,13 @@ npm module for pulling down translation files from [PhraseApp](http://phraseapp.
 ## Installation
 
 ```sh
-npm install load-phraseapp-translations --save
+npm install @randomgoods/load-phraseapp-translations --save
 ```
 
 ## Usage
 
 ```js
-const loadTranslations = require('load-phraseapp-translations');
+const loadTranslations = require('@randomgoods/load-phraseapp-translations');
 
 loadTranslations.initialize({
   access_token: 1,
@@ -38,6 +38,7 @@ loadTranslations.initialize({
  * *location*: Optional, defaults to current directory. If supplied, must be an existing path.
  * *file_format*: Optional, defaults to `node_json`, the format for [i18n-node-2](https://github.com/jeresig/i18n-node-2).
  * *file_extension*: Optional, defaults to `js`.
+ * *file_name_key*: Optional, defaults to `code`, but can be configured to use `name` instead.
  * *transform*: Optional function that should be called with each locale's data if additional processing is required before it is saved. Takes a string containing the data from Phrase and should return a string containing the new data. Defaults to a no-op.
 
 #### Callback
@@ -45,7 +46,7 @@ loadTranslations.initialize({
 Initialize also accepts an optional callback that returns an error and a success response.
 
 ```js
-const loadTranslations = require('load-phraseapp-translations');
+const loadTranslations = require('@randomgoods/load-phraseapp-translations');
 
 loadTranslations.initialize({
   access_token: 1,

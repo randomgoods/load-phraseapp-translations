@@ -35,6 +35,7 @@ describe("#configure", function() {
       "project_id",
       "file_format",
       "file_extension",
+      "file_name_key",
       "location",
       "transform"
     );
@@ -127,7 +128,40 @@ describe("#fetchLocales", function() {
   it("contains German and English", function(done) {
     fetchLocales(config, function(err, res) {
       if (err) return done(err);
-      res.should.have.members(["de", "en"]);
+      res.should.have.deep.members([
+        {
+            "id": "1",
+            "name": "de",
+            "code": "de",
+            "default": false,
+            "main": false,
+            "rtl": false,
+            "plural_forms": [
+                "zero",
+                "one",
+                "other"
+            ],
+            "created_at": "2015-07-13T15:56:07Z",
+            "updated_at": "2015-07-13T15:56:07Z",
+            "source_locale": null
+        },
+        {
+            "id": "2",
+            "name": "en",
+            "code": "en",
+            "default": true,
+            "main": false,
+            "rtl": false,
+            "plural_forms": [
+                "zero",
+                "one",
+                "other"
+            ],
+            "created_at": "2015-07-13T15:55:44Z",
+            "updated_at": "2015-07-13T15:55:45Z",
+            "source_locale": null
+        }
+      ]);
       done();
     });
   });
@@ -160,7 +194,7 @@ describe("#downloadTranslationFiles", function() {
   });
 
   it("downloads the translation file", function(done) {
-    downloadTranslationFile('en', config, function(err, res) {
+    downloadTranslationFile({ code: 'en' }, config, function(err, res) {
       if (err) return done(err);
       fs.stat(res, function(err, _) {
         if (err) done(err)
@@ -180,7 +214,7 @@ describe("#downloadTranslationFiles", function() {
         }
       });
 
-    downloadTranslationFile('en', config, function(err, res) {
+    downloadTranslationFile({ code: 'en' }, config, function(err, res) {
       if (err) return done(err);
       fileName = res;
       fileContents = fs.readFileSync(fileName).toString();
@@ -233,7 +267,7 @@ describe("#download", function() {
       .reply(200, [
         {
             "id": "1",
-            "name": "de",
+            "name": "de-foobar",
             "code": "de",
             "default": false,
             "main": false,
@@ -249,7 +283,7 @@ describe("#download", function() {
         },
         {
             "id": "2",
-            "name": "en",
+            "name": "en-foobar",
             "code": "en",
             "default": true,
             "main": false,
@@ -269,6 +303,8 @@ describe("#download", function() {
   after(function() {
     fs.unlinkSync(config.location + "/en.js");
     fs.unlinkSync(config.location + "/de.js");
+    fs.unlinkSync(config.location + "/en-foobar.js");
+    fs.unlinkSync(config.location + "/de-foobar.js");
   });
 
   afterEach(function() {
@@ -279,9 +315,26 @@ describe("#download", function() {
     download(config, function(err, res) {
       if (err) return done(err);
 
-      fs.existsSync(config.location + "/en.js");
-      fs.existsSync(config.location + "/de.js");
+      fs.existsSync(config.location + "/en-foobar.js");
+      fs.existsSync(config.location + "/de-foobar.js");
     });
+
+    done();
+  });
+
+  it("downloads all of the files and saves with name, instead of code", function(done) {
+    download(
+      {
+        ...config,
+        file_name_key: 'name',
+      },
+      function(err, res) {
+        if (err) return done(err);
+
+        fs.existsSync(config.location + "/en-foobar.js");
+        fs.existsSync(config.location + "/de-foobar.js");
+      }
+    );
 
     done();
   });

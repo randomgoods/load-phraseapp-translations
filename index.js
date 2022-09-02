@@ -29,6 +29,7 @@ module.exports = {
 
   configure: function(options) {
     const default_options = {
+      file_name_key: "code",
       file_format: "node_json",
       file_extension: "js",
       location: process.cwd(),
@@ -43,15 +44,15 @@ module.exports = {
   download: function(options, callback) {
     module.exports.fetchLocales(options,
       function (err, locales) {
-        console.log("Got locales", locales);
+        console.log("Got locales", _.map(locales, options.file_name_key));
         if (!err) {
           async.eachLimit(locales, 2, function(l, callback) {
             module.exports.downloadTranslationFile(l, options, function(err, _) {
               if (!err) {
-                console.log("Translation for " + l + " downloaded successfully.");
+                console.log("Translation for " + l[options.file_name_key] + " downloaded successfully.");
                 return callback(null);
               } else {
-                console.error("Error downloading " + l + ".", err);
+                console.error("Error downloading " + l[options.file_name_key] + ".", err);
                 return callback(err);
               }
             });
@@ -65,7 +66,8 @@ module.exports = {
 
     request(path + '/projects/' + options.project_id + '/locales?access_token=' + options.access_token, function(err, res, body) {
       if (!err && res.statusCode === 200) {
-        locales = _.map(JSON.parse(body), "code");
+        locales = JSON.parse(body); // _.map(JSON.parse(body), "code");
+        // console.log('fetchLocales locales:', locales);
         return callback(null, locales);
       } else if (err) {
         console.error("An error occurred when fetching locales", err);
@@ -75,12 +77,12 @@ module.exports = {
   },
 
   downloadTranslationFile: function(locale, options, callback) {
-    const translationPath = path + '/projects/' + options.project_id + '/locales/' + locale + '/download?access_token=' + options.access_token + '&file_format=' + options.file_format;
+    const translationPath = path + '/projects/' + options.project_id + '/locales/' + locale.code + '/download?access_token=' + options.access_token + '&file_format=' + options.file_format;
 
     request(translationPath, function(err, res, body) {
       if (!err && res.statusCode >= 200 && res.statusCode < 300) {
         const transformed = options.transform(JSON.parse(body));
-        const fileName = options.location + "/" + locale + "." + options.file_extension;
+        const fileName = options.location + "/" + locale[options.file_name_key] + "." + options.file_extension;
 
         fs.writeFile(fileName, JSON.stringify(transformed), function(err) {
           if (err) {
