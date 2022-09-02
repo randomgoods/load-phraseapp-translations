@@ -188,7 +188,7 @@ describe("#downloadTranslationFiles", function() {
   });
 
   afterEach(function() {
-    fs.unlink(config.location + "/en.js");
+    fs.unlinkSync(config.location + "/en.js");
     api.isDone();
   });
 });
@@ -203,7 +203,9 @@ describe("#download", function() {
     };
 
     config = configure(options);
+  });
 
+  beforeEach(function() {
     api = nock("https://api.phraseapp.com")
       .persist()
       .get("/v2/projects/1/locales/en/download")
@@ -263,9 +265,12 @@ describe("#download", function() {
   });
 
   after(function() {
+    fs.unlinkSync(config.location + "/en.js");
+    fs.unlinkSync(config.location + "/de.js");
+  });
+
+  afterEach(function() {
     api.isDone();
-    fs.unlink(config.location + "/en.js");
-    fs.unlink(config.location + "/de.js");
   });
 
   it("downloads all of the files", function(done) {
@@ -303,6 +308,8 @@ describe("#download", function() {
         fileContents['en'] = fs.readFileSync(config.location + "/en.js").toString();
         fileContents['de'] = fs.readFileSync(config.location + "/de.js").toString();
 
+        // console.log('fileContents:', fileContents);
+
         fileContents.should.deep.equal(apiFileContents);
       });
 
@@ -312,21 +319,21 @@ describe("#download", function() {
   it("transforms the data correctly", function(done) {
     var apiFileContents = {};
     var fileContents = {};
-    var new_config = _.extend({}, config, {
+    const new_config = {
+      ...config,
       transform: function(data) {
         data.test_key = 'hello';
         return data;
       }
-    });
+    }
 
     download(new_config, function(err, res) {
       if (err) return done(err);
 
       fileContents['en'] = fs.readFileSync(config.location + "/en.js").toString();
-
       JSON.parse(fileContents['en']).should.contain.key('test_key');
+      done();
     });
-    done();
   });
 });
 
@@ -339,7 +346,9 @@ describe("#initialize", function() {
       project_id: 1,
       location: process.cwd()
     };
+  });
 
+  beforeEach(function() {
     api = nock("https://api.phraseapp.com")
       .persist()
       .get("/v2/projects/1/locales/en/download")
@@ -399,9 +408,12 @@ describe("#initialize", function() {
   });
 
   after(function() {
+    fs.unlinkSync(options.location + "/en.js");
+    fs.unlinkSync(options.location + "/de.js");
+  });
+
+  afterEach(function() {
     api.isDone();
-    fs.unlink(options.location + "/en.js");
-    fs.unlink(options.location + "/de.js");
   });
 
   it("downloads all of the files", function(done) {
@@ -410,9 +422,9 @@ describe("#initialize", function() {
 
       fs.existsSync(options.location + "/en.js");
       fs.existsSync(options.location + "/de.js");
-    });
 
-    done();
+      done();
+    });
   });
 
   it("has the correct contents in the downloaded files", function(done) {
@@ -440,8 +452,7 @@ describe("#initialize", function() {
         fileContents['de'] = fs.readFileSync(options.location + "/de.js").toString();
 
         fileContents.should.deep.equal(apiFileContents);
+        done();
       });
-
-      done();
   });
 });

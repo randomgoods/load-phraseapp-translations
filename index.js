@@ -63,7 +63,7 @@ module.exports = {
 
     request(path + '/projects/' + options.project_id + '/locales?access_token=' + options.access_token, function(err, res, body) {
       if (!err && res.statusCode == 200) {
-        locales = _.pluck(JSON.parse(body), "code");
+        locales = _.map(JSON.parse(body), "code");
         return callback(null, locales);
       } else if (err) {
         console.error("An error occurred when fetching locales", err);
@@ -77,10 +77,10 @@ module.exports = {
 
     request(translationPath, function(err, res, body) {
       if (!err && res.statusCode >= 200 && res.statusCode < 300) {
-        var transformed = options.transform(body);
+        var transformed = options.transform(JSON.parse(body));
         var fileName = options.location + "/" + locale + "." + options.file_extension;
 
-        fs.writeFile(fileName, transformed, function(err) {
+        fs.writeFile(fileName, JSON.stringify(transformed), function(err) {
           if (err) {
             return console.error("An error occured when downloading translation file", err);
           }
