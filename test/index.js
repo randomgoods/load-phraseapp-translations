@@ -1,4 +1,4 @@
-var should = require("chai").should(),
+const should = require("chai").should(),
     fs = require("fs"),
     nock = require("nock"),
     request = require("request"),
@@ -10,16 +10,16 @@ var should = require("chai").should(),
     downloadTranslationFile = loadTranslations.downloadTranslationFile,
     configure = loadTranslations.configure;
 
-var http = require("http");
+// const http = require("http");
 
 describe("#configure", function() {
-  var config;
+  let config;
 
   before(function() {
-    var options = {
-      access_token: 1,
-      project_id: 1,
-      location: 'test'
+    const options = {
+        access_token: 1,
+        project_id: 1,
+        location: 'test'
     };
 
     config = configure(options);
@@ -45,7 +45,7 @@ describe("#configure", function() {
   })
 
   it("default transform does nothing", function() {
-    var output = {
+    const output = {
       "test": "file"
     };
     config.transform(output).should.equal(output);
@@ -53,10 +53,10 @@ describe("#configure", function() {
 });
 
 describe("#fetchLocales", function() {
-  var config, api;
+  let config, api;
 
   before(function() {
-    var options = {
+    const options = {
       access_token: 1,
       project_id: 1
     };
@@ -134,10 +134,10 @@ describe("#fetchLocales", function() {
 });
 
 describe("#downloadTranslationFiles", function() {
-  var config, api;
+  let config, api;
 
   before(function() {
-    var options = {
+    const options = {
       access_token: 1,
       project_id: 1
     };
@@ -162,18 +162,20 @@ describe("#downloadTranslationFiles", function() {
   it("downloads the translation file", function(done) {
     downloadTranslationFile('en', config, function(err, res) {
       if (err) return done(err);
-      fs.exists(res, function(res) {
+      fs.stat(res, function(err, _) {
+        if (err) done(err)
+
         done();
       });
     });
   });
 
   it("has the correct contents in the translation file", function(done) {
-    var fileContents, apiFileContents, fileName;
+    let fileContents, apiFileContents, fileName;
 
     request("https://api.phraseapp.com/v2/projects/1/locales/en/download?access_token=1&file_format=node_json",
       function(err, res, body) {
-        if (res.statusCode = 200 && !err) {
+        if (res.statusCode === 200 && !err) {
           apiFileContents = body;
         }
       });
@@ -194,10 +196,10 @@ describe("#downloadTranslationFiles", function() {
 });
 
 describe("#download", function() {
-  var config, api;
+  let config, api;
 
   before(function() {
-    var options = {
+    const options = {
       access_token: 1,
       project_id: 1
     };
@@ -285,19 +287,19 @@ describe("#download", function() {
   });
 
   it("has the correct contents in the downloaded files", function(done) {
-    var apiFileContents = {};
-    var fileContents = {};
+    const apiFileContents = {};
+    const fileContents = {};
 
     request("https://api.phraseapp.com/v2/projects/1/locales/en/download?access_token=1&file_format=node_json",
       function(err, res, body) {
-        if (res.statusCode = 200 && !err) {
+        if (res.statusCode === 200 && !err) {
           apiFileContents['en'] = body;
         }
       });
 
     request("https://api.phraseapp.com/v2/projects/1/locales/de/download?access_token=1&file_format=node_json",
       function(err, res, body) {
-        if (res.statusCode = 200 && !err) {
+        if (res.statusCode === 200 && !err) {
           apiFileContents['de'] = body;
         }
       });
@@ -317,8 +319,8 @@ describe("#download", function() {
   });
 
   it("transforms the data correctly", function(done) {
-    var apiFileContents = {};
-    var fileContents = {};
+    const apiFileContents = {};
+    const fileContents = {};
     const new_config = {
       ...config,
       transform: function(data) {
@@ -338,7 +340,7 @@ describe("#download", function() {
 });
 
 describe("#initialize", function() {
-  var api, options;
+  let api, options;
 
   before(function() {
     options = {
@@ -428,19 +430,19 @@ describe("#initialize", function() {
   });
 
   it("has the correct contents in the downloaded files", function(done) {
-    var apiFileContents = {};
-    var fileContents = {};
+    const apiFileContents = {};
+    const fileContents = {};
 
     request("https://api.phraseapp.com/v2/projects/1/locales/en/download?access_token=1&file_format=node_json",
       function(err, res, body) {
-        if (res.statusCode = 200 && !err) {
+        if (res.statusCode === 200 && !err) {
           apiFileContents['en'] = body;
         }
       });
 
     request("https://api.phraseapp.com/v2/projects/1/locales/de/download?access_token=1&file_format=node_json",
       function(err, res, body) {
-        if (res.statusCode = 200 && !err) {
+        if (res.statusCode === 200 && !err) {
           apiFileContents['de'] = body;
         }
       });

@@ -11,7 +11,7 @@ npm install load-phraseapp-translations --save
 ## Usage
 
 ```
-var loadTranslations = require('load-phraseapp-translations');
+const loadTranslations = require('load-phraseapp-translations');
 
 loadTranslations.initialize({
   access_token: 1,
@@ -36,7 +36,7 @@ loadTranslations.initialize({
 Initialize also accepts an optional callback that returns an error and a success response.
 
 ```
-var loadTranslations = require('load-phraseapp-translations');
+const loadTranslations = require('load-phraseapp-translations');
 
 loadTranslations.initialize({
   access_token: 1,

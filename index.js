@@ -4,12 +4,12 @@
   Default format returned is js for i18n-node-2.
 */
 
-var request = require('request');
-var fs = require('fs');
-var _ = require('lodash');
-var async = require('async');
+const request = require('request');
+const fs = require('fs');
+const _ = require('lodash');
+const async = require('async');
 
-var path = 'https://api.phraseapp.com/v2';
+const path = 'https://api.phraseapp.com/v2';
 
 module.exports = {
   initialize: function(options, callback) {
@@ -23,16 +23,18 @@ module.exports = {
       };
     }
 
-    var config = module.exports.configure(options);
+    const config = module.exports.configure(options);
     module.exports.download(config, callback);
   },
 
   configure: function(options) {
-    var default_options = {
+    const default_options = {
       file_format: "node_json",
       file_extension: "js",
       location: process.cwd(),
-      transform: function(translations) { return translations; }
+      transform: function (translations) {
+        return translations;
+      }
     };
 
     return _.extend({}, default_options, options);
@@ -44,7 +46,7 @@ module.exports = {
         console.log("Got locales", locales);
         if (!err) {
           async.eachLimit(locales, 2, function(l, callback) {
-            module.exports.downloadTranslationFile(l, options, function(err, res) {
+            module.exports.downloadTranslationFile(l, options, function(err, _) {
               if (!err) {
                 console.log("Translation for " + l + " downloaded successfully.");
                 return callback(null);
@@ -59,10 +61,10 @@ module.exports = {
   },
 
   fetchLocales: function(options, callback) {
-    var locales;
+    let locales;
 
     request(path + '/projects/' + options.project_id + '/locales?access_token=' + options.access_token, function(err, res, body) {
-      if (!err && res.statusCode == 200) {
+      if (!err && res.statusCode === 200) {
         locales = _.map(JSON.parse(body), "code");
         return callback(null, locales);
       } else if (err) {
@@ -73,23 +75,23 @@ module.exports = {
   },
 
   downloadTranslationFile: function(locale, options, callback) {
-    var translationPath = path + '/projects/' + options.project_id + '/locales/' + locale + '/download?access_token=' + options.access_token + '&file_format=' + options.file_format;
+    const translationPath = path + '/projects/' + options.project_id + '/locales/' + locale + '/download?access_token=' + options.access_token + '&file_format=' + options.file_format;
 
     request(translationPath, function(err, res, body) {
       if (!err && res.statusCode >= 200 && res.statusCode < 300) {
-        var transformed = options.transform(JSON.parse(body));
-        var fileName = options.location + "/" + locale + "." + options.file_extension;
+        const transformed = options.transform(JSON.parse(body));
+        const fileName = options.location + "/" + locale + "." + options.file_extension;
 
         fs.writeFile(fileName, JSON.stringify(transformed), function(err) {
           if (err) {
-            return console.error("An error occured when downloading translation file", err);
+            return console.error("An error occurred when downloading translation file", err);
           }
 
           return callback(null, fileName);
         })
       } else {
         if (err) {
-          console.error("An error occured when downloading translation file", err);
+          console.error("An error occurred when downloading translation file", err);
           return callback(err);
         }
         console.error("Got status code " + res.statusCode);
