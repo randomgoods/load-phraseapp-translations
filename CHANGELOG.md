@@ -1,5 +1,6 @@
 # Changelog
 
+* 0.3.1 Fix transform helper method
 * 0.3.0 Add option to use different response key as file name
 * 0.2.6 Update third-party dependencies, fix tests
 * 0.2.5 Limit number of parallel downloads due to phraseapp rate limiting
