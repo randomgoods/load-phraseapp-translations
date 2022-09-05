@@ -253,6 +253,17 @@ describe("#download", function() {
         "navigation.sign_in": "Sign In",
         "navigation.wishlist": "Wishlist"
       })
+      .get("/v2/projects/1/locales/en/download")
+      .query({access_token: 1, file_format: "nested_json"})
+      .reply(200, {
+        "greeting": "Hi, %s",
+        "navigation": {
+          "search": "Search",
+          "shopping_cart": "Shopping Cart",
+          "sign_in": "Sign In",
+          "wishlist": "Wishlist"
+        }
+      })
       .get("/v2/projects/1/locales/de/download")
       .query({ access_token: 1, file_format: "node_json" })
       .reply(200, {
@@ -261,6 +272,17 @@ describe("#download", function() {
         "navigation.shopping_cart": "Einkaufswagen",
         "navigation.sign_in": "Anmeldung",
         "navigation.wishlist": "Wunschzettel"
+      })
+      .get("/v2/projects/1/locales/de/download")
+      .query({access_token: 1, file_format: "nested_json"})
+      .reply(200, {
+        "greeting": "Hallo, %s",
+        "navigation": {
+          "search": "Suchen",
+          "shopping_cart": "Einkaufswagen",
+          "sign_in": "Anmeldung",
+          "wishlist": "Wunschzettel"
+        }
       })
       .get("/v2/projects/1/locales")
       .query({ access_token: 1 })
@@ -305,6 +327,8 @@ describe("#download", function() {
     fs.unlinkSync(config.location + "/de.js");
     fs.unlinkSync(config.location + "/en-foobar.js");
     fs.unlinkSync(config.location + "/de-foobar.js");
+    fs.unlinkSync(config.location + "/en.json");
+    fs.unlinkSync(config.location + "/de.json");
   });
 
   afterEach(function() {
@@ -377,8 +401,9 @@ describe("#download", function() {
     const new_config = {
       ...config,
       transform: function(data) {
+        data = JSON.parse(data);
         data.test_key = 'hello';
-        return data;
+        return JSON.stringify(data);
       }
     }
 
@@ -387,6 +412,34 @@ describe("#download", function() {
 
       fileContents['en'] = fs.readFileSync(config.location + "/en.js").toString();
       JSON.parse(fileContents['en']).should.contain.key('test_key');
+      done();
+    });
+  });
+
+  it('downloads and beautifies nested json', function(done) {
+    const fileContents = {};
+    const new_config = {
+      ...config,
+      file_format: 'nested_json',
+      file_extension: 'json',
+      transform: function(data) {
+        return JSON.stringify(JSON.parse(data), null, 2);
+      }
+    }
+
+    download(new_config, function(err, res) {
+      if (err) return done(err);
+
+      fileContents['en'] = fs.readFileSync(config.location + "/en.json").toString();
+      fileContents['en'].should.equal(`{
+  "greeting": "Hi, %s",
+  "navigation": {
+    "search": "Search",
+    "shopping_cart": "Shopping Cart",
+    "sign_in": "Sign In",
+    "wishlist": "Wishlist"
+  }
+}`);
       done();
     });
   });

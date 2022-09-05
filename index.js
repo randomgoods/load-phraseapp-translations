@@ -81,16 +81,20 @@ module.exports = {
 
     request(translationPath, function(err, res, body) {
       if (!err && res.statusCode >= 200 && res.statusCode < 300) {
-        const transformed = options.transform(JSON.parse(body));
+        const transformed = options.transform(body);
         const fileName = options.location + "/" + locale[options.file_name_key] + "." + options.file_extension;
 
-        fs.writeFile(fileName, JSON.stringify(transformed), function(err) {
-          if (err) {
-            return console.error("An error occurred when downloading translation file", err);
-          }
+        fs.writeFile(
+          fileName,
+          transformed,
+          function(err) {
+            if (err) {
+              return console.error("An error occurred when downloading translation file", err);
+            }
 
-          return callback(null, fileName);
-        })
+            return callback(null, fileName);
+          }
+        );
       } else {
         if (err) {
           console.error("An error occurred when downloading translation file", err);
