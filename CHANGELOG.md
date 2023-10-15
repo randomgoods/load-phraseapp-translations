@@ -1,5 +1,6 @@
 # Changelog
 
+* 0.3.2 Update thirdparty dependencies
 * 0.3.1 Fix transform helper method
 * 0.3.0 Add option to use different response key as file name
 * 0.2.6 Update third-party dependencies, fix tests
