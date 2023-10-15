@@ -76,4 +76,4 @@ See [CREDITS](https://github.com/randomgoods/load-phraseapp-translations/blob/ma
 
 ## License
 
-[MIT](https://github.com/randomgoods/load-phraseapp-translations/blob/main/LICENSE) (c) 2015 Skookum Digital Works, 2022 randomgoods and contributors
+[MIT](https://github.com/randomgoods/load-phraseapp-translations/blob/main/LICENSE) (c) 2015 Skookum Digital Works, 2022 - 2023 randomgoods and contributors
